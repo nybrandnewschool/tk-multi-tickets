@@ -1,0 +1,32 @@
+includes:
+- ../app_locations.yml
+
+
+settings.tk-multi-tickets:
+  location: '@apps.tk-multi-tickets.location'
+
+  # Events_hook used to filter exceptions, and execute code before and after
+  # a ticket is created.
+  events_hook: '{self}/events_hook.py'
+  # Or use your own custom Hook
+  # events_hook: '{config}/tk-multi-tickets/events_hook.py'
+
+  # If a project_id is provided, this will be set for all Tickets created by
+  # tk-multi-tickets. For example, my studio has a project named Pipeline used
+  # to track all tickets. If left at -1, the current Project will be used
+  # instead.
+  project_id: -1
+
+  # Exception hook settings - create tickets from unhandled python exceptions
+  excepthook_enabled: True
+
+  # Show the tickets submitter dialog when an unhandled exception occurs
+  excepthook_confirm: True
+
+  # Wildcard patterns use to include exceptions
+  excepthook_includes:
+    - '*'
+
+  # Wildcard patterns used to exclude exceptions
+  excepthook_excludes:
+    - '<maya console>'

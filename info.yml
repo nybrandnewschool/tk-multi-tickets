@@ -1,0 +1,80 @@
+# Copyright (c) 2013 Shotgun Software Inc.
+#
+# CONFIDENTIAL AND PROPRIETARY
+#
+# This work is provided "AS IS" and subject to the Shotgun Pipeline Toolkit
+# Source Code License included in this distribution package. See LICENSE.
+# By accessing, using, copying or modifying this work you indicate your
+# agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
+# not expressly granted therein are reserved by Shotgun Software Inc.
+
+# Metadata defining the behaviour and requirements for this engine
+
+# expected fields in the configuration file for this engine
+configuration:
+  project_id:
+    type: int
+    default_value: -1
+    description: |
+      The project id to use for all Tickets. If this is not set the project
+      from the current context will be used.
+  events_hook:
+    type: hook
+    default_value: '{self}/events_hook.py'
+    description: |
+      Hook that handles the Tickets app events. See also hooks/events_hook.
+  excepthook_enabled:
+    type: bool
+    default_value: True
+    description: |
+      When True, create Tickets from unhandled Python exceptions. Installs an
+      exception handler to sys.execpthook or maya.utils.formatGuiException in
+      Maya. Can be customized by overriding the "exception_filter" and
+      "on_unhandled_exception" methods of the events_hook.
+  excepthook_confirm:
+    type: bool
+    default_value: True
+    description: |
+      When True, show the Tickets Submitter dialog before submitting a Ticket.
+      This allows end users to augment the Ticket with additional details.
+  excepthook_includes:
+    type: list
+    allows_empty: True
+    values: {type: str}
+    description: |
+      A list of wildcard patterns used to match against the names of modules
+      that unhandled exceptons are raised in. When a match is found, a Ticket
+      will be created. Only used when use_excepthook is True.
+  excepthook_excludes:
+    type: list
+    allows_empty: True
+    values: {type: str}
+    description: |
+      A list of wildcard patterns used to match against the names of modules
+      that unhandled exceptons are raised in. When a match is found, a Ticket
+      will not be created. Only used when use_excepthook is True.
+
+# this app works in all engines - it does not contain
+# any host application specific commands
+supported_engines:
+
+# the Shotgun fields that this engine needs in order to operate correctly
+requires_shotgun_fields:
+  Ticket:
+    - {"system_name": "sg_context", "type": "text"}
+    - {"system_name": "sg_error", "type": "text"}
+    - {"system_name": "sg_count", "type": "number"}
+
+# More verbose description of this item
+display_name: "Tickets"
+description: "Submit tickets to Shotgun in context."
+
+# Required minimum versions for this item to run
+requires_shotgun_version:
+requires_core_version: "v0.14.28"
+requires_engine_version:
+
+# the frameworks required to run this app
+frameworks:
+  - {"name": "tk-framework-qtwidgets", "version": "v2.x.x", "minimum_version": "v2.8.0"}
+  - {"name": "tk-framework-shotgunutils", "version": "v5.x.x", "minimum_version": "v5.7.0"}
