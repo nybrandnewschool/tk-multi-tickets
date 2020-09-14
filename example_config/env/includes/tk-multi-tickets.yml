@@ -17,6 +17,10 @@ settings.tk-multi-tickets:
   # instead.
   project_id: -1
 
+  # The HumanUser id to use as a default all Tickets. If this is not set the
+  # assignee field will be left empty when the dialog appears.
+  default_assignee_id: -1
+
   # Exception hook settings - create tickets from unhandled python exceptions
   excepthook_enabled: True
 

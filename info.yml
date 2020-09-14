@@ -12,12 +12,15 @@
 
 # expected fields in the configuration file for this engine
 configuration:
-  project_id:
-    type: int
-    default_value: -1
+  default_assignee:
+    type: dict
+    items:
+      type: {type: shotgun_entity_type}
+      id: {type: int}
+    allows_empty: True
     description: |
-      The project id to use for all Tickets. If this is not set the project
-      from the current context will be used.
+      The default assignee for all tickets. Can be a HumanUser or Group.
+      {type: 'Group', id: 10} OR {type: 'HumanUser', id: 88}
   events_hook:
     type: hook
     default_value: '{self}/events_hook.py'
