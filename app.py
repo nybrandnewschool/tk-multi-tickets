@@ -105,32 +105,32 @@ class TicketsApp(Application):
         '''
 
         # Get Ticket Context
-        context = self._context_to_dict(context or self.context)
+        ticket_context = self._context_to_dict(context or self.context)
 
         # Add traceback details and set error message
         if exc_info:
             tb_details = self.excepthook.get_traceback_details(exc_info[2])
-            context.update(tb_details)
+            ticket_context.update(tb_details)
             if not error:
                 error = self.excepthook.format_exception(*exc_info)
 
         # Set project field
-        project_id = self._get_project_id(context)
+        project_id = context.project['id']
         fields.setdefault('project', {'type': 'Project', 'id': project_id})
 
         # Call events_hook.before_create_ticket allowing users to augment
         # ticket data.
-        fields, context, error = self.execute_hook_method(
+        fields, ticket_context, error = self.execute_hook_method(
             'events_hook',
             'before_create_ticket',
             fields=fields,
-            context=context,
+            context=ticket_context,
             error=error,
             exc_info=exc_info,
         )
 
         # Inject context and error message into fields
-        fields['sg_context'] = self._format_context(context)
+        fields['sg_context'] = self._format_context(ticket_context)
         fields['sg_error'] = error
 
         # Create our new ticket
