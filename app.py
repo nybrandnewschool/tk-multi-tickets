@@ -140,6 +140,9 @@ class TicketsApp(Application):
         if attachments:
             self.io.upload_attachments(ticket['id'], attachments)
 
+        # Create note to force notification to appear in Shotgun Inbox
+        self.send_ticket_notification(ticket)
+
         # Call events_hook.after_create_ticket allowing users to perform
         # an action with the generated ticket data.
         self.execute_hook_method(
@@ -148,6 +151,11 @@ class TicketsApp(Application):
             ticket=ticket,
         )
         return ticket
+
+    def send_ticket_notification(self, ticket):
+        '''Create a Note to force Tickets to show up in the Shotgun Inbox.'''
+
+        self.io.send_notification(ticket)
 
     def get_ticket_url(self, ticket_id):
         url_tmpl = '{base_url}/detail/Ticket/{id}'
