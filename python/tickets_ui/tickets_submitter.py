@@ -34,6 +34,14 @@ context_selector = sgtk.platform.import_framework(
     'tk-framework-qtwidgets',
     'context_selector',
 )
+search_completer = sgtk.platform.import_framework(
+    'tk-framework-qtwidgets',
+    'search_completer',
+)
+shotgun_search_widget = sgtk.platform.import_framework(
+    'tk-framework-qtwidgets',
+    'shotgun_search_widget',
+)
 
 
 def show(app, **field_defaults):
@@ -170,6 +178,7 @@ class TicketsSubmitter(QtGui.QWidget):
         fields.setdefault('context', None)
         fields.setdefault('error', None)
         fields.setdefault('message', None)
+        fields.setdefault('assignee', None)
         self._exc_info = fields.pop('exc_info', None)
 
         # Initialize widget
@@ -181,6 +190,8 @@ class TicketsSubmitter(QtGui.QWidget):
             start_processing=True,
             max_threads=2,
         )
+        self._assignee = None
+        self._context = None
 
         # Create widgets
         self.message = QtGui.QLabel()
@@ -189,10 +200,10 @@ class TicketsSubmitter(QtGui.QWidget):
         self.sep0.setFrameShape(self.sep0.HLine)
         self.sep0.setFrameShadow(self.sep0.Sunken)
         self.context_selector = context_selector.ContextWidget(self)
+        self.context_selector.set_up(self._task_manager)
         self.context_selector.ui.label.setText('Ticket Context')
         self.context_selector.ui.label.hide()
         self.context_selector.context_changed.connect(self._on_context_changed)
-        self._context = None
         self.sep1 = QtGui.QFrame()
         self.sep1.setFrameShape(self.sep1.HLine)
         self.sep1.setFrameShadow(self.sep1.Sunken)
@@ -206,6 +217,16 @@ class TicketsSubmitter(QtGui.QWidget):
         self.priority.setSizePolicy(
             QtGui.QSizePolicy.Expanding,
             QtGui.QSizePolicy.Expanding,
+        )
+        self.assignee = shotgun_search_widget.GlobalSearchWidget(self)
+        self.assignee.set_searchable_entity_types({
+            'HumanUser': [['sg_status_list', 'is', 'act']],
+            'Group': [],
+        })
+        self.assignee.set_bg_task_manager(self._task_manager)
+        self.assignee.entity_activated.connect(self._on_assignee_changed)
+        self.assignee.completer().entity_activated.disconnect(
+            self.assignee.clear
         )
         self.description = QtGui.QTextEdit(self)
         policy = self.description.sizePolicy()
@@ -236,6 +257,7 @@ class TicketsSubmitter(QtGui.QWidget):
         self.layout.addRow('Title', self.title)
         self.layout.addRow('Type', self.type)
         self.layout.addRow('Priority', self.priority)
+        self.layout.addRow('Assignee', self.assignee)
         self.layout.addRow('Attachments', self.attachments)
         self.layout.addRow('Description', self.description)
         self.layout.addRow('Error', self.error)
@@ -282,10 +304,16 @@ class TicketsSubmitter(QtGui.QWidget):
         '''Initialize field defaults'''
 
         # Set context
-        context = fields.get('context', None) or app.context
-        self.context_selector.set_up(self._task_manager)
+        context = fields['context'] or app.context
         self.context_selector.set_context(context)
         self._context = context
+
+        # Set assignee
+        assignee = fields['assignee']
+        self._assignee = assignee
+        if assignee:
+            name = assignee.get('name', assignee.get('code', ''))
+            self.assignee.setText(name)
 
         # Set title
         if fields['title']:
@@ -341,6 +369,7 @@ class TicketsSubmitter(QtGui.QWidget):
             'sg_ticket_type': self.type.currentText(),
             'sg_priority': self.priority.currentText(),
             'sg_error': self.error.toPlainText(),
+            'addressings_to': [self.get_assignee()],
         }
 
     def get_attachments(self):
@@ -349,8 +378,45 @@ class TicketsSubmitter(QtGui.QWidget):
     def get_context(self):
         return self._context
 
+    def get_assignee(self):
+        name = self.assignee.text()
+        if not name:
+            # No assignee
+            return
+
+        # If field text matches _assignee return _assignee
+        if self._assignee:
+            assignee_name = self._assignee.get(
+                'name',
+                self._assignee.get('code', '')
+            )
+            if assignee_name == name:
+                return self._assignee
+
+        # Else lookup assignee - could be a HumanUser or Group
+        assignee = app.shotgun.find_one(
+            'HumanUser',
+            [['name', 'is', name]],
+            ['id', 'name']
+        )
+        if assignee:
+            assignee['type'] = 'HumanUser'
+            return assignee
+
+        assignee = app.shotgun.find_one(
+            'Group',
+            [['code', 'is', name]],
+            ['id', 'code'],
+        )
+        if assignee:
+            assignee['type'] = 'Group'
+            return assignee
+
     def _on_context_changed(self, context):
         self._context = context
+
+    def _on_assignee_changed(self, type, id, name):
+        self._assignee = {'type': type, 'id': id, 'name': name}
 
     def _on_submit(self):
         fields = self.get_fields()
