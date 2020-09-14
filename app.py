@@ -515,6 +515,8 @@ class TicketsIO(object):
         )
 
     def create(self, data):
+        '''Create a Ticket.'''
+
         self.app.logger.debug(
             'Creating new Ticket: %s' % data.get('title', '')
         )
@@ -522,11 +524,12 @@ class TicketsIO(object):
             'Ticket',
             data=data,
             return_fields=[
-                'title',
-                'description',
                 'created_by',
                 'created_at',
                 'project',
+                'title',
+                'description',
+                'addressings_to',
                 'sg_context',
                 'sg_error',
                 'sg_type',
@@ -536,12 +539,16 @@ class TicketsIO(object):
         )
 
     def update(self, ticket_id, data):
+        '''Update a Ticket.'''
+
         self.app.logger.debug(
             'Updating Ticket #%s: %s' % (ticket_id, data)
         )
         return self.shotgun.update('Ticket', ticket_id, data)
 
     def upload_attachments(self, ticket_id, attachments):
+        '''Upload Ticket attachments.'''
+
         for i, attachment in enumerate(attachments):
             self.app.logger.debug(
                 'Uploading attachment (%s of %s)' % (i + 1, len(attachments))
