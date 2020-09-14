@@ -53,7 +53,13 @@ class TicketsApp(Application):
     def show_tickets_submitter(self, **field_defaults):
         '''Show the Ticket Submission dialog.'''
 
-        self.ui.tickets_submitter.show(self, fields=field_defaults)
+        field_defaults.setdefault('context', self.context)
+        field_defaults.setdefault('assignee', self.get_default_assignee())
+
+        self.ui.tickets_submitter.show(
+            self,
+            fields=field_defaults,
+        )
 
     def create_exception_ticket(self, typ, value, tb, confirm=False):
         '''Create a new Ticket entity from a python exception.
@@ -150,13 +156,29 @@ class TicketsApp(Application):
             id=ticket_id,
         )
 
-    def _get_project_id(self, context):
+    def get_default_assignee(self):
+        assignee = self.get_setting('default_assignee')
+        if not assignee:
+            return
+
+        if assignee['type'] == 'Group':
+            return self.shotgun.find_one(
+                assignee['type'],
+                [['id', 'is', assignee['id']]],
+                ['id', 'code']
+            )
+
+        if assignee['type'] == 'HumanUser':
+            return self.shotgun.find_one(
+                assignee['type'],
+                [['id', 'is', assignee['id']]],
+                ['id', 'name']
+            )
+
+    def get_default_project_id(self, context):
         '''Get the project_id for a Ticket.'''
 
-        project_id = self.get_setting('project_id')
-        if project_id < 0:
-            project_id = context.project['id']
-        return project_id
+        return context['project']['id']
 
     def _context_to_dict(self, context):
         '''Convert a Context object to a dict.'''
