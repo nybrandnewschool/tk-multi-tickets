@@ -23,8 +23,6 @@ Tickets can be configured to register a Python excepthook that will submit ticke
 - Document configuration
 - Ticket Assignment
     + Add hook allowing developers to override how Tickets are assigned
-    + Add default_assign_to setting
-    + Add assigned_to field to Tickets Submitter dialog
 - Ticket Templates
     + Allow configuring of templates for each Ticket type
     + Title and description should be customizable
