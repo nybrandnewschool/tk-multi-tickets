@@ -353,6 +353,9 @@ class TicktesExceptHook(object):
             'sg_ticket_type': 'Bug',
             'sg_priority': '3',
         }
+        assignee = self.app.get_default_assignee()
+        if assignee:
+            fields['addressings_to'] = [assignee]
 
         # Show ticket dialog when excepthook_confirm is True
         # or confirm was explicitly passed.
@@ -370,6 +373,7 @@ class TicktesExceptHook(object):
                 context=self.app.context,
                 exc_info=(typ, value, tb),
                 message=message,
+                assignee=self.app.get_default_assignee(),
             )
 
         return self.app.create_ticket(
