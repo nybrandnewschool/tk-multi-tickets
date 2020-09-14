@@ -457,6 +457,29 @@ class TicketsIO(object):
             ['id', 'sg_count'],
         )
 
+    def send_notification(self, ticket):
+        '''Create a Note ensuring that users receive a notification in their
+        Shotgun Inbox.'''
+
+        assignees = ticket['addressings_to']
+        created_by = ticket['created_by']
+        subject = "%s's new Ticket #%s." % (
+            ticket['created_by']['name'],
+            ticket['id']
+        )
+        return self.shotgun.create(
+            'Note',
+            data={
+                'addressings_to': ticket['addressings_to'],
+                'user': ticket['created_by'],
+                'subject': subject,
+                'content': '%s' % self.app.get_ticket_url(ticket['id']),
+                'project': ticket['project'],
+                'note_links': [{'type': 'Ticket', 'id': ticket['id']}],
+                'sg_note_type': 'Internal',
+            },
+        )
+
     def create(self, data):
         self.app.logger.debug(
             'Creating new Ticket: %s' % data.get('title', '')
