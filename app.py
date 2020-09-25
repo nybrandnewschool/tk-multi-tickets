@@ -19,6 +19,7 @@ import threading
 from collections import deque
 
 # Third party imports
+import sgtk
 from sgtk.platform import Application
 
 
@@ -325,6 +326,10 @@ class TicktesExceptHook(object):
         self.create_exception_ticket(typ, value, tb, self.confirm)
         return result
 
+    def _get_current_context(self):
+        engine = sgtk.platform.current_engine()
+        return engine.context
+
     def create_exception_ticket(self, typ, value, tb, confirm=False):
         # Use events_hook.exception_filter to see if we should create a ticket
         ticket_should_be_created = self.app.execute_hook_method(
@@ -370,7 +375,7 @@ class TicktesExceptHook(object):
                 type=fields['sg_ticket_type'],
                 priority=fields['sg_priority'],
                 error=error,
-                context=self.app.context,
+                context=self._get_current_context(),
                 exc_info=(typ, value, tb),
                 message=message,
                 assignee=self.app.get_default_assignee(),
