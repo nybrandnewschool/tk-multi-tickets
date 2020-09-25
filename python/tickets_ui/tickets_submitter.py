@@ -57,7 +57,7 @@ def show(app, **field_defaults):
 
 
 class Attachments(QtGui.QListWidget):
-    '''Attachments Widget - List of screen captures.'''
+    '''Attachments Widget - Horizontal list of screen captures.'''
 
     style = textwrap.dedent('''
         QListView {
@@ -388,7 +388,7 @@ class TicketsSubmitter(QtGui.QWidget):
         if self._assignee:
             assignee_name = self._assignee.get(
                 'name',
-                self._assignee.get('code', '')
+                self._assignee.get('code', ''),
             )
             if assignee_name == name:
                 return self._assignee
@@ -397,7 +397,7 @@ class TicketsSubmitter(QtGui.QWidget):
         assignee = app.shotgun.find_one(
             'HumanUser',
             [['name', 'is', name]],
-            ['id', 'name']
+            ['id', 'name'],
         )
         if assignee:
             assignee['type'] = 'HumanUser'
