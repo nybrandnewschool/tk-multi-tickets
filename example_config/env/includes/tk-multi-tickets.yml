@@ -11,15 +11,8 @@ settings.tk-multi-tickets:
   # Or use your own custom Hook
   # events_hook: '{config}/tk-multi-tickets/events_hook.py'
 
-  # If a project_id is provided, this will be set for all Tickets created by
-  # tk-multi-tickets. For example, my studio has a project named Pipeline used
-  # to track all tickets. If left at -1, the current Project will be used
-  # instead.
-  project_id: -1
-
-  # The HumanUser id to use as a default all Tickets. If this is not set the
-  # assignee field will be left empty when the dialog appears.
-  default_assignee_id: -1
+  # A Group or HumanUser Entity to use as the default assignee for tickets.
+  default_assignee: {'type': 'Group', 'id': 10}
 
   # Exception hook settings - create tickets from unhandled python exceptions
   excepthook_enabled: True
