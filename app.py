@@ -300,12 +300,12 @@ class TicktesExceptHook(object):
         maya.utils.formatGuiException = self
 
     def destroy(self):
-        '''Remove the TicktesExceptHook.'''
+        '''Remove the TicketsExceptHook.'''
 
         if not self.installed:
             return
 
-        method = getattr(self, '_init_' + self._host)
+        method = getattr(self, '_destroy_' + self._host)
         return method()
 
     def _destroy_python(self):
