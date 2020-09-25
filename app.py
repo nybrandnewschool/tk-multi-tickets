@@ -45,7 +45,7 @@ class TicketsApp(Application):
         self.io = TicketsIO(self)
 
         # Install Tickets excepthook to deal with unhandled exceptions
-        self.excepthook = TicktesExceptHook(self)
+        self.excepthook = TicketsExceptHook(self)
         self.excepthook.init()
 
     def destroy_app(self):
@@ -224,9 +224,11 @@ class TicketsApp(Application):
         return '\n'.join(lines)
 
 
-class TicktesExceptHook(object):
+class TicketsExceptHook(object):
     '''Creates tickets from unhandled exceptions by installing itself as the
     sys.excepthook.'''
+
+    _is_tickets_excepthook = True
 
     def __init__(self, app):
         self.app = app
@@ -259,17 +261,21 @@ class TicktesExceptHook(object):
         return self.app.get_setting('execepthook_confirm', True)
 
     def init(self):
-        '''Install the TicktesExceptHook.'''
+        '''Install the TicketsExceptHook.'''
 
         if self.enabled:
+            self.app.logger.info('Init excepthook for %s...' % self._host)
             method = getattr(self, '_init_' + self._host)
             return method()
+        else:
+            self.app.logger.info('Skipping excepthook - disabled in settings.')
 
     def _init_python(self):
         '''Default python implementation using sys.excepthook.'''
 
-        # Do nothing if a TicktesExceptHook is already installed...
-        if isinstance(sys.excepthook, type(self)):
+        # Do nothing if a TicketsExceptHook is already installed...
+        if is_tickets_excepthook(sys.excepthook):
+            self.app.logger.info('Excepthook already installed...')
             return
 
         # Get the default excepthook (user or system default)
@@ -277,6 +283,10 @@ class TicktesExceptHook(object):
             self._default_excepthook = sys.excepthook
         else:
             self._default_excepthook = sys.__excepthook__
+
+        self.app.logger.info(
+            'Stored original excepthook: %r' % self._default_excepthook
+        )
 
         # Install this object as the python excepthook
         sys.excepthook = self
@@ -286,8 +296,9 @@ class TicktesExceptHook(object):
 
         import maya.utils
 
-        # Do nothing if a TicktesExceptHook is already installed...
-        if isinstance(maya.utils.formatGuiException, type(self)):
+        # Do nothing if a TicketsExceptHook is already installed...
+        if is_tickets_excepthook(maya.utils.formatGuiException):
+            self.app.logger.info('Excepthook already installed...')
             return
 
         # Get the default formatGuiException (user or system default)
@@ -295,6 +306,10 @@ class TicktesExceptHook(object):
             self._default_excepthook = maya.utils.formatGuiException
         else:
             self._default_excepthook = maya.utils._formatGuiException
+
+        self.app.logger.info(
+            'Stored original excepthook: %r' % self._default_excepthook
+        )
 
         # Install this object as the maya formatGuiException hook
         maya.utils.formatGuiException = self
@@ -564,3 +579,13 @@ class TicketsIO(object):
                 path=attachment,
                 field_name='attachments',
             )
+
+
+def is_tickets_excepthook(obj):
+    '''Check if an object is an instance or subclass of TicketsExceptHook.
+
+    Used in TicketsExceptHook._init_<host> to ensure that we don't register
+    more than one excepthook handler.
+    '''
+
+    return getattr(obj, '_is_tickets_excepthook', False)
