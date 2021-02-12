@@ -18,6 +18,8 @@ class Notice(QtGui.QWidget):
     style = string.Template(textwrap.dedent('''
         QWidget {
             background: $bg_color;
+        }
+        QLabel {
             color: $fg_color;
         }
     '''))
@@ -36,7 +38,6 @@ class Notice(QtGui.QWidget):
 
         style = self.style.substitute(fg_color=fg_color, bg_color=bg_color)
         self.setStyleSheet(style)
-        self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
 
         self.setWindowFlags(
             QtCore.Qt.Tool
@@ -44,7 +45,6 @@ class Notice(QtGui.QWidget):
         )
         self.setMinimumSize(1, 1)
         self.setMaximumHeight(30)
-        self.setMaximumWidth(self.parent().width())
 
     def show_top(self, widget, duration=2000):
         '''Show the notice at the top center of the specified widget'''
@@ -54,6 +54,9 @@ class Notice(QtGui.QWidget):
         ref_pos = widget.mapToGlobal(ref_pos)
 
         rect = self.rect()
+        rect.setWidth(ref_rect.width())
+        self.setGeometry(rect)
+
         pos = QtCore.QPoint(int(rect.width() * 0.5), rect.top())
 
         delta = ref_pos - pos
