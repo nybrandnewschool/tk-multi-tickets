@@ -4,7 +4,7 @@
 
 Tickets are a great way to track issues and development in your pipeline. However, for artists, creating tickets can be annoying and time consuming. tk-multi-tickets allows your artists to create tickets quickly in context, so they can focus on making art!
 
-<img src="https://github.com/nybrandnewschool/tk-multi-tickets/blob/master/images/tickets_submitter.png"/>
+<img src="images/tickets_submitter.png"/>
 
 # Features
 - Create Tickets in context
@@ -17,7 +17,7 @@ Tickets are a great way to track issues and development in your pipeline. Howeve
 # Unhandled Python Exceptions
 Tickets can be configured to register a Python excepthook that will submit tickets to Shotgun when an unhandled exception occurs. You can optionally prompt artists with a dialog before the Ticket is submitted, allowing artists to provide additional details and attachments.
 
-<img src="https://github.com/nybrandnewschool/tk-multi-tickets/blob/master/images/tickets_submitter_exception.png"/>
+<img src="images/tickets_submitter_exception.png"/>
 
 # Todo
 - Document configuration
