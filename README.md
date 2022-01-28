@@ -1,5 +1,5 @@
 # The Tickets App (tk-multi-tickets)
-[![stable](https://img.shields.io/badge/version-0.1.0-green.svg)](https://semver.org)</br>
+[![stable](https://img.shields.io/badge/version-0.1.2-green.svg)](https://semver.org)</br>
 *Developed at [Brand New School](https://brandnewschool.com).*
 
 Tickets are a great way to track issues and development in your pipeline. However, for artists, creating tickets can be annoying and time consuming. tk-multi-tickets allows your artists to create tickets quickly in context, so they can focus on making art!
