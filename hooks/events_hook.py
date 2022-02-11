@@ -21,6 +21,11 @@ class TicketsEventsHook(HookBaseClass):
             True if a Ticket should be created for the Exception
         '''
 
+        # Always log unhandled exceptions....
+        self.parent.engine.log_error('Unhandled Exception!')
+        exc_message = ''.join(traceback.format_exception(typ, value, tb))
+        self.parent.engine.log_error(exc_message)
+
         return self.parent.excepthook.is_important_traceback(
             tb=tb,
             includes=self.parent.excepthook.includes,
