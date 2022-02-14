@@ -258,7 +258,7 @@ class TicketsExceptHook(object):
 
     @property
     def confirm(self):
-        return self.app.get_setting('execepthook_confirm', True)
+        return self.app.get_setting('excepthook_confirm', True)
 
     def init(self):
         '''Install the TicketsExceptHook.'''
