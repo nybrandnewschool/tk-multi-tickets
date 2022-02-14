@@ -1,4 +1,6 @@
 import sgtk
+import traceback
+
 
 HookBaseClass = sgtk.get_hook_baseclass()
 
