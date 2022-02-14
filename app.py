@@ -131,8 +131,8 @@ class TicketsApp(Application):
         )
 
         # Inject context and error message into fields
-        fields['sg_context'] = self._format_context(ticket_context)
-        fields['sg_error'] = error
+        fields['sg_context'] = code_block(self._format_context(ticket_context))
+        fields['sg_error'] = code_block(error)
 
         # Create our new ticket
         ticket = self.io.create(fields)
@@ -589,3 +589,9 @@ def is_tickets_excepthook(obj):
     '''
 
     return getattr(obj, '_is_tickets_excepthook', False)
+
+
+def code_block(text):
+    '''Wraps text in triple backticks making it a markdown codeblock.'''
+
+    return '```{}```'.format(text)
