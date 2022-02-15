@@ -594,4 +594,4 @@ def is_tickets_excepthook(obj):
 def code_block(text):
     '''Wraps text in triple backticks making it a markdown codeblock.'''
 
-    return '```{}```'.format(text)
+    return '```\n{}\n```'.format(text)
