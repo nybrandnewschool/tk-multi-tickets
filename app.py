@@ -447,22 +447,29 @@ class TicketsExceptHook(object):
         Ticket should be created.
         '''
 
-        tb = self.last(self.iter_traceback(tb))
-        frame = tb.tb_frame
-        frame_info = inspect.getframeinfo(frame)
-        tb_module = self.get_module_name(frame_info.filename)
-
         if excludes:
-            for pattern in excludes:
-                if fnmatch.fnmatch(tb_module, pattern):
-                    return False
+            # Excludes take precedence over includes...
+            for tb_next in self.iter_traceback(tb):
+                frame = tb_next.tb_frame
+                frame_info = inspect.getframeinfo(frame)
+                tb_module = self.get_module_name(frame_info.filename)
+                for pattern in excludes:
+                    if fnmatch.fnmatch(tb_module, pattern):
+                        return False
 
         if includes:
-            for pattern in includes:
-                if fnmatch.fnmatch(tb_module, pattern):
-                    return True
-
-        return False
+            # If includes are defined, only what's defined will be included.
+            for tb_next in self.iter_traceback(tb):
+                frame = tb_next.tb_frame
+                frame_info = inspect.getframeinfo(frame)
+                tb_module = self.get_module_name(frame_info.filename)
+                for pattern in includes:
+                    if fnmatch.fnmatch(tb_module, pattern):
+                        return True
+            return False
+        else:
+            # Include all remaining unhandled exceptions if no includes were defined.
+            return True
 
     def get_traceback_details(self, tb):
         '''Get valuable details from a Traceback.'''
